@@ -1,0 +1,19 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Delete Docker Image and Containers
+        run: docker rm -f project
+      - name: Pull Docker Image from Docker hub
+        run: docker pull gwonu/project:latest
+      - name: Execute Docker Container
+        run: docker run -d -p 8080:80 --name nginx-proxy gwonu/project:latest
