@@ -12,7 +12,7 @@ jobs:
 
     steps:
       # GitHub Actions의 기본 설정을 사용하여 리포지토리를 체크아웃
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
       # Node.js를 설치하고 npm 캐시를 사용하도록 설정
       - name: Use Node.js 20.x
