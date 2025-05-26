@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/gwonu1/project#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "openai": "^4.103.0"
   }
 }
