@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/gwonu1/project/issues"
   },
-  "homepage": "https://github.com/gwonu1/project#readme"
+  "homepage": "https://github.com/gwonu1/project#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
