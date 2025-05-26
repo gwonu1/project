@@ -25,11 +25,19 @@ export default function App() {
       let chatInfo;
       try {
         chatInfo = JSON.parse(chatRes.data.message);
+
+        // chatInfo가 빈 객체(아무 필드도 없음)일 때만 에러 처리
+        if (Object.keys(chatInfo).length === 0) {
+          setError("질문을 이해하지 못했습니다. 다시 시도해주세요.");
+          setLoading(false);
+          return;
+        }
       } catch {
         setError("질문을 이해하지 못했습니다. 다시 시도해주세요.");
         setLoading(false);
         return;
       }
+      
 
       // 2️⃣ genre 필드는 moviedb.js로 그대로 넘긴다 (장르ID 매핑 X)
       const tmdbParams = {

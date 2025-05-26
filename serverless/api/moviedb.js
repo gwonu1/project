@@ -28,43 +28,35 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: "Method Not Allowed" });
     }
 
-    // 여러 장르를 콤마(,)로 분리하여 장르ID 문자열로 변환
-    let { genre, ...rest } = req.query;
-    if (!genre) {
-        return res.status(400).json({ error: "최소한 하나 이상의 장르(genre) 파라미터가 필요합니다." });
+    const {
+        genre, // "공포,코미디" 등
+        ...rest
+    } = req.query;
+
+    let genreIds = "";
+    if (genre) {
+        genreIds = genre
+            .split(",")
+            .map(g => GENRE_MAP[g.trim()])
+            .filter(Boolean)
+            .join(",");
+        if (!genreIds) {
+            return res.status(400).json({ error: "유효한 장르가 없습니다." });
+        }
     }
 
-    // genre 파라미터(예: "공포,코미디") → "27,35"
-    const genreIds = genre
-        .split(",")
-        .map(g => GENRE_MAP[g.trim()])
-        .filter(Boolean)
-        .join(",");
-    if (!genreIds) {
-        return res.status(400).json({ error: "유효한 장르가 없습니다." });
+    // 최소 조건: genre나 with_origin_country 둘 중 하나는 필수
+    if (!genreIds && !rest.with_origin_country) {
+        return res.status(400).json({ error: "장르(genre)나 국가(with_origin_country) 중 적어도 하나는 필요합니다." });
     }
 
-    // TMDb 파라미터 조합 (있으면 추가)
+    // TMDb 파라미터 조합 (있는 것만 추가)
     const params = {
-        with_genres: genreIds,
-        language: "ko-KR", // 고정
+        ...(genreIds && { with_genres: genreIds }),
+        ...rest,
+        language: "ko-KR",
         sort_by: "popularity.desc",
     };
-
-    // 지정된 다른 파라미터만 추가 (값이 있으면 추가)
-    const tmdbFields = [
-        "primary_release_date.gte",
-        "primary_release_date.lte",
-        "with_origin_country",
-        "with_original_language",
-        "vote_average.gte",
-        "vote_average.lte",
-        "page"
-    ];
-
-    tmdbFields.forEach(field => {
-        if (rest[field]) params[field] = rest[field];
-    });
 
     try {
         const tmdbRes = await axios.get("https://api.themoviedb.org/3/discover/movie", {

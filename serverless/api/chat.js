@@ -27,9 +27,9 @@ export default async function handler(req, res) {
                 {
                     role: "system",
                     content: `
-사용자의 영화 추천 질문을 분석하여 아래의 JSON 형식으로만 응답하세요.
+사용자의 영화 추천 질문을 분석하여 아래의 JSON 형식으로만 응답해.
 
-- genre: 한글 장르명(필수, 여러 개면 쉼표로 구분, 예: "공포,코미디")
+- genre: 한글 장르명(여러 개면 쉼표로 구분, 예: "공포,코미디")
 - primary_release_date.gte: 시작 개봉일 (YYYY-MM-DD, 선택)
 - primary_release_date.lte: 종료 개봉일 (YYYY-MM-DD, 선택)
 - with_origin_country: ISO 3166-1 국가 코드 (예: "KR", 선택)
@@ -38,10 +38,9 @@ export default async function handler(req, res) {
 - vote_average.lte: 최대 평점 (예: 9.0, 선택)
 
 주의사항:
-- genre는 반드시 한글로 한 개 이상 포함해야 합니다.
-- genre, primary_release_date.gte, primary_release_date.lte, with_origin_country, with_original_language, vote_average.gte, vote_average.lte 이외에는 응답에 포함하지 마세요.
-- 값이 없으면 그 필드는 생략하세요.
-- JSON만 반환하고, 다른 텍스트는 포함하지 마세요.
+- genre, primary_release_date.gte, primary_release_date.lte, with_origin_country, with_original_language, vote_average.gte, vote_average.lte 이외에는 응답에 포함하지 마.
+- 값이 없으면 그 필드는 생략해. 모든 필드가 비어있으면 빈 객체를 반환해.
+- JSON만 반환하고, 다른 텍스트는 포함하지 마.
 
 예시:
 {
