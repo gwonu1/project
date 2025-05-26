@@ -1,36 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
 
-// 한글 장르명 → TMDb 장르ID 매핑 테이블
-const GENRE_MAP = {
-  "SF": 878,
-  "TV 영화": 10770,
-  "가족": 10751,
-  "공포": 27,
-  "다큐멘터리": 99,
-  "드라마": 18,
-  "로맨스": 10749,
-  "모험": 12,
-  "미스터리": 9648,
-  "범죄": 80,
-  "서부": 37,
-  "스릴러": 53,
-  "애니메이션": 16,
-  "액션": 28,
-  "역사": 36,
-  "음악": 10402,
-  "전쟁": 10752,
-  "코미디": 35,
-  "판타지": 14,
-};
-
 export default function App() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 검색(챗봇→TMDb) 전체 처리
   const handleSearch = async () => {
     setError("");
     setMovies([]);
@@ -41,12 +17,11 @@ export default function App() {
     setLoading(true);
 
     try {
-      // 1️⃣ OpenAI API(챗봇)에 자연어 질의
+      // 1️⃣ 챗봇 질의
       const chatRes = await axios.post("/api/chat", {
         content: query,
       });
 
-      // 2️⃣ OpenAI 응답(JSON 파싱)
       let chatInfo;
       try {
         chatInfo = JSON.parse(chatRes.data.message);
@@ -56,37 +31,12 @@ export default function App() {
         return;
       }
 
-      // 3️⃣ 장르ID 매핑 (여러 장르)
-      if (!chatInfo.genre) {
-        setError("챗봇이 장르를 인식하지 못했습니다.");
-        setLoading(false);
-        return;
-      }
-      const genreIdArr = chatInfo.genre
-        .split(",")
-        .map(g => GENRE_MAP[g.trim()])
-        .filter(Boolean);
-      if (!genreIdArr.length) {
-        setError(`알 수 없는 장르: ${chatInfo.genre}`);
-        setLoading(false);
-        return;
-      }
-      const with_genres = genreIdArr.join(",");
-
-      // 4️⃣ TMDb API에 실제 영화목록 요청
+      // 2️⃣ genre 필드는 moviedb.js로 그대로 넘긴다 (장르ID 매핑 X)
       const tmdbParams = {
-        genre: chatInfo.genre, // 서버리스에서 genre를 받아 장르ID로 변환함 (또는 with_genres 직접 전달도 가능)
-        with_genres,
-        language: "ko-KR", // 고정
-        "primary_release_date.gte": chatInfo["primary_release_date.gte"],
-        "primary_release_date.lte": chatInfo["primary_release_date.lte"],
-        with_origin_country: chatInfo.with_origin_country,
-        with_original_language: chatInfo.with_original_language,
-        "vote_average.gte": chatInfo["vote_average.gte"],
-        "vote_average.lte": chatInfo["vote_average.lte"],
+        ...chatInfo,           // genre, with_origin_country, release date, 등등
+        language: "ko-KR",     // 고정
       };
 
-      // undefined/null/빈값 파라미터 제거
       Object.keys(tmdbParams).forEach(
         key => (tmdbParams[key] === undefined || tmdbParams[key] === "" || tmdbParams[key] === null) && delete tmdbParams[key]
       );
