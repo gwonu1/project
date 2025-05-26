@@ -27,17 +27,13 @@ const GENRE_MAP = {
 export default function App() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
-  const [chatJson, setChatJson] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [chatText, setChatText] = useState(""); // 챗봇 응답 원문
   const [error, setError] = useState("");
 
   // 검색(챗봇→TMDb) 전체 처리
   const handleSearch = async () => {
     setError("");
     setMovies([]);
-    setChatJson(null);
-    setChatText("");
     if (!query.trim()) {
       setError("검색어를 입력하세요.");
       return;
@@ -50,40 +46,47 @@ export default function App() {
         content: query,
       });
 
-      setChatText(chatRes.data.message);
-
       // 2️⃣ OpenAI 응답(JSON 파싱)
       let chatInfo;
       try {
         chatInfo = JSON.parse(chatRes.data.message);
-        setChatJson(chatInfo);
       } catch {
-        setError("챗봇 답변 파싱 실패: " + chatRes.data.message);
+        setError("질문을 이해하지 못했습니다. 다시 시도해주세요.");
         setLoading(false);
         return;
       }
 
-      // 3️⃣ 장르ID 매핑
-      const genreId = GENRE_MAP[chatInfo.genre];
-      if (chatInfo.genre && !genreId) {
+      // 3️⃣ 장르ID 매핑 (여러 장르)
+      if (!chatInfo.genre) {
+        setError("챗봇이 장르를 인식하지 못했습니다.");
+        setLoading(false);
+        return;
+      }
+      const genreIdArr = chatInfo.genre
+        .split(",")
+        .map(g => GENRE_MAP[g.trim()])
+        .filter(Boolean);
+      if (!genreIdArr.length) {
         setError(`알 수 없는 장르: ${chatInfo.genre}`);
         setLoading(false);
         return;
       }
+      const with_genres = genreIdArr.join(",");
 
       // 4️⃣ TMDb API에 실제 영화목록 요청
       const tmdbParams = {
+        genre: chatInfo.genre, // 서버리스에서 genre를 받아 장르ID로 변환함 (또는 with_genres 직접 전달도 가능)
+        with_genres,
         language: "ko-KR", // 고정
         "primary_release_date.gte": chatInfo["primary_release_date.gte"],
         "primary_release_date.lte": chatInfo["primary_release_date.lte"],
-        with_genres: genreId,
         with_origin_country: chatInfo.with_origin_country,
         with_original_language: chatInfo.with_original_language,
         "vote_average.gte": chatInfo["vote_average.gte"],
         "vote_average.lte": chatInfo["vote_average.lte"],
       };
 
-      // 빈 값 필터링
+      // undefined/null/빈값 파라미터 제거
       Object.keys(tmdbParams).forEach(
         key => (tmdbParams[key] === undefined || tmdbParams[key] === "" || tmdbParams[key] === null) && delete tmdbParams[key]
       );
@@ -102,7 +105,7 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 800, margin: "30px auto", padding: 16 }}>
-      <h2>영화 추천 챗봇 (OpenAI + TMDb)</h2>
+      <h2>영화 추천 챗봇</h2>
       <div style={{ display: "flex", gap: 8 }}>
         <input
           value={query}
@@ -116,12 +119,6 @@ export default function App() {
           {loading ? "검색 중..." : "검색"}
         </button>
       </div>
-      {chatText && (
-        <div style={{ margin: "14px 0", padding: 10, background: "#f8f8f8", borderRadius: 8, fontSize: 15 }}>
-          <b>챗봇 조건(JSON):</b>
-          <pre style={{ margin: 0, fontSize: 14 }}>{chatText}</pre>
-        </div>
-      )}
       {error && <div style={{ color: "red", margin: "10px 0" }}>{error}</div>}
 
       {/* 영화 결과 */}
