@@ -22,7 +22,7 @@ export default function App() {
     if (exist) {
       fav = fav.filter(m => m.id !== movie.id); // 이미 있으면 삭제
     } else {
-      fav = [movie, ...fav].slice(0, 10); // 최대 10개 유지
+      fav = [movie, ...fav].slice(0, 10); // 최대 10개까지
     }
     localStorage.setItem(FAVORITE_KEY, JSON.stringify(fav));
     setFavorites(fav);
@@ -60,10 +60,9 @@ export default function App() {
         return;
       }
 
-      // 2️⃣ genre 필드는 moviedb.js로 그대로 넘긴다 (장르ID 매핑 X)
       const tmdbParams = {
         ...chatInfo,           // genre, with_origin_country, release date, 등등
-        language: "ko-KR",     // 고정
+        language: "ko-KR",
       };
 
       Object.keys(tmdbParams).forEach(
