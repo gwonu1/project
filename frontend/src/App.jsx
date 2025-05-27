@@ -15,14 +15,14 @@ export default function App() {
     setFavorites(JSON.parse(localStorage.getItem(FAVORITE_KEY) || "[]"));
   }, []);
 
-  // 즐겨찾기 추가/삭제 함수
+  // 영화 즐겨찾기 추가/삭제 함수
   const toggleFavorite = (movie) => {
     let fav = JSON.parse(localStorage.getItem(FAVORITE_KEY) || "[]");
     const exist = fav.find(m => m.id === movie.id);
     if (exist) {
       fav = fav.filter(m => m.id !== movie.id); // 이미 있으면 삭제
     } else {
-      fav = [movie, ...fav].slice(0, 10); // 최대 10개까지
+      fav = [movie, ...fav].slice(0, 10); // 최대 10개까지 저장
     }
     localStorage.setItem(FAVORITE_KEY, JSON.stringify(fav));
     setFavorites(fav);
@@ -179,3 +179,4 @@ export default function App() {
     </div>
   );
 }
+
