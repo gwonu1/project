@@ -40,7 +40,7 @@ export default function App() {
     setLoading(true);
 
     try {
-      // 1️⃣ 챗봇 질의
+      // 챗봇 질의
       const chatRes = await axios.post("/api/chat", {
         content: query,
       });
@@ -49,6 +49,7 @@ export default function App() {
       try {
         chatInfo = JSON.parse(chatRes.data.message);
 
+        // 챗봇이 빈 객체를 반환하면 에러 처리
         if (Object.keys(chatInfo).length === 0) {
           setError("질문을 이해하지 못했습니다. 다시 시도해주세요.");
           setLoading(false);

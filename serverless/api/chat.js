@@ -66,7 +66,6 @@ export default async function handler(req, res) {
 
         // JSON만 잘라서 반환
         const answer = response.choices[0].message.content.trim();
-        // (파싱 성공 여부는 프론트에서 추가로 체크 가능)
         res.status(200).json({ message: answer });
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -45,11 +45,6 @@ export default async function handler(req, res) {
         }
     }
 
-    // 최소 조건: genre나 with_origin_country 둘 중 하나는 필수
-    if (!genreIds && !rest.with_origin_country) {
-        return res.status(400).json({ error: "장르(genre)나 국가(with_origin_country) 중 적어도 하나는 필요합니다." });
-    }
-
     // TMDb 파라미터 조합 (있는 것만 추가)
     const params = {
         ...(genreIds && { with_genres: genreIds }),
