@@ -148,7 +148,7 @@ export default function App() {
         boxShadow: "0 2px 12px #eee",
         height: "fit-content"
       }}>
-        <h3 style={{ fontSize: 18, marginBottom: 10 }}>내 찜 영화</h3>
+        <h3 style={{ fontSize: 18, marginBottom: 10 }}>내가 찜한 영화</h3>
         {favorites.length === 0 && (
           <div style={{ color: "#aaa" }}>아직 찜한 영화가 없습니다.</div>
         )}
